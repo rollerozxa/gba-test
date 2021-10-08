@@ -6,12 +6,15 @@
 #include <gba_input.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdbool.h>
 
 int playerX = 3;
 int playerY = 3;
 
-int oldPlayerX = -1;
-int oldPlayerY = -1;
+int oldPlayerX = 3;
+int oldPlayerY = 3;
+
+bool solid[30][20];
 
 //---------------------------------------------------------------------------------
 // Program entry point
@@ -33,18 +36,22 @@ int main(void) {
 
 	for (int x = 0; x < 30; x++) {
 		iprintf("\x1b[0;%dHX", x);
+		solid[x][0] = true;
 	}
 
 	for (int x = 0; x < 30; x++) {
 		iprintf("\x1b[19;%dHX", x);
+		solid[x][19] = true;
 	}
 	
 	for (int y = 0; y < 30; y++) {
 		iprintf("\x1b[%d;0HX", y);
+		solid[0][y] = true;
 	}
 	
 	for (int y = 0; y < 30; y++) {
 		iprintf("\x1b[%d;29HX", y);
+		solid[29][y] = true;
 	}
 
 	while (1) {
@@ -68,9 +75,14 @@ int main(void) {
 		}
 		
 		if (oldPlayerX != playerX || oldPlayerY != playerY) {
-			iprintf("\x1b[%d;%dH ", oldPlayerY, oldPlayerX);
-			oldPlayerX = playerX;
-			oldPlayerY = playerY;
+			if (!solid[playerX][playerY]) {
+				iprintf("\x1b[%d;%dH ", oldPlayerY, oldPlayerX);
+				oldPlayerX = playerX;
+				oldPlayerY = playerY;
+			} else {
+				playerX = oldPlayerX;
+				playerY = oldPlayerY;
+			}
 		}
 		
 		iprintf("\x1b[%d;%dHO", playerY, playerX);
